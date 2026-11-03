@@ -1,0 +1,43 @@
+Random Forest simulation instructions
+
+Please create a simulation as follows:
+
+General parameters: 
+- Number of samples for training is called ‘ntrain’ and is equal to 4000
+- The number of samples for testing is called ‘ntest’ and is equal to 2000 
+- The number of clusters in the training dataset is termed as ‘k’: we will do simulations from ‘k’ = 2, 4, 8, 12, 16
+- The number of covariates to simulate is termed as ’S’: for all simulations, S = 20: these covariates are named ‘X1’, ‘X2’, etc all the way up to ‘X20’
+- To simulate the true outcome model:
+    - draw ’S’ coefficients from a standard normal distribution - these will be coefficients for the linear part of function: call this vector of coefficients ‘linear_coefs’
+    - Draw 5 more coefficients also from a standard normal distribution - these will be coefficients for the nonlinear part of the function: call this vector ‘nonlinear_coefs’ 
+    - Create a outcome simulation function that does the following for a given dataset containing covariate data: 
+        - Use the ‘linear_coefs’ vector to simulate the linear part of the outcome, by doing matrix multiplication with covariate_data as follows: covariate_data @ linear_coefs. Then, use the ‘nonlinear_coefs’ as follows: nonlinear_coefs[0]*sin(X1) + nonlinear_coefs[1]*sin(X2) + nonlinear_coefs[2]*X3*X4 + nonlinear_coefs[3]*X3^2 + nonlinear_coefs[4]*X4^3
+        - Add standard normal noise to each outcome
+
+
+For the ‘Ensemble’ method:
+- Simulate ‘ntrain’ samples from an S-dimensional Uniform[0, 1/k] distribution so that the train dataset is dimension ntrain x S: each of these these variables are named ‘X1’ up to ‘X20’ since S = 20.
+- Simulate ‘ntest’ samples from an S-dimensional Uniform[0, 1/k] distribution so that the test dataset is dimension ntest x S: same variable names as training dataset
+- Simulate outcome values for the train and test dataset by using the outcome simulation function created above
+- Train a Random Forest with 250 trees on the train dataset + outcome
+- Test on the test covariate data, and then compute the MSE comparing the predictions to the true test outcome
+
+For the ‘Merged’ method:
+- For b = 1,…,k: simulate ‘ntrain/k’ samples from an S-dimensional Uniform[(b-1)/k, b/k] distribution so that the train dataset is dimension ntrain x S: each of these these variables are named ‘X1’ up to ‘X20’ since S = 20.
+- Simulate ‘ntest’ samples from an S-dimensional Uniform[0, 1/k] distribution so that the test dataset is dimension ntest x S: same variable names as training dataset
+- Simulate outcome values for the train and test dataset by using the outcome simulation function created above
+- Train a Random Forest with 250 trees on the train dataset + outcome
+- Test on the test covariate data, and then compute the MSE comparing the predictions to the true test outcome
+
+Now, take the ratio of the ‘Ensemble’ MSE to the ‘Merged’ MSE. This is the output value for one replicate. 
+
+
+Complete the above simulation for ‘nrep’ = 100 replicates for each value of ‘k’, where ‘k’ = 2, 4, 8, 12, 16. For each value of ‘k’, write all of the ratios of ‘Ensemble’ to ‘Merged’ MSE calculated as the output across replicates to a file: by the end, this file should have ’nrep’ rows and ‘k’ columns where each column contains the results for that value of ‘k’. 
+
+Finally, create a plot as follows:
+- ‘k’ is the x-axis and the y-axis takes the average across the 100 replicates for each value of k as the point to plot
+- Additionally calculates upper and lower 95% confidence bands across replicates. Please plot both the point estimates and a line connecting them, plus confidence bands. 
+- Also plot a red dotted line at the true theoretical ratio that equals 1/2
+- The x-axis should be named ‘Number of Cluster (k)’
+- The y-axis should be named ‘MSE Ratio (Ensemble / Merged)’
+- The legend should have the following entries: ‘Empirical MSE Ratio’ as the line, ’95% confidence Band’ as the band, and ‘MSE Ratio = 1/2' as the dotted line. Please use the color scheme/naming conventions present in Figure 2a of COLT_2026_Template (1).pdf
